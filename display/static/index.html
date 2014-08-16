@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block body %}
+<section id="main-slider" class="no-margin">
+        <div class="carousel slide wet-asphalt">
+            <ol class="carousel-indicators">
+                <li data-target="#main-slider" data-slide-to="0" class="active"></li>
+                <li data-target="#main-slider" data-slide-to="1"></li>
+                <li data-target="#main-slider" data-slide-to="2"></li>
+            </ol>
+            <div class="carousel-inner">
+                <div class="item active" style="background-image: url(/static/images/slider/slide1.jpg)">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="carousel-content centered">
+                                    <h2 class="boxed animation animated-item-1">Designed for Nepalese Context</h2>
+                                    <p class="animation animated-item-2"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div><!--/.item-->
+                <div class="item" style="background-image: url(/static/images/slider/slide3.jpg)">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="carousel-content centered">
+                                    <h2 class="boxed animation animated-item-1">Lets you save what you've earned</h2>
+                                    <!--p class="boxed animation animated-item-2">By predicting the next interest rate you can decide when to borrow loan and when to lend.</p-->
+                                    <br>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div><!--/.item-->
+                <div class="item" style="background-image: url(/static/images/slider/slide2.jpg)">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="carousel-content centered">
+                                    <h2 class="boxed animation animated-item-1">Doesn't let your money fly</h2>
+                                    <br>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div><!--/.item-->
+            </div><!--/.carousel-inner-->
+        </div><!--/.carousel-->
+        <a class="prev hidden-xs" href="#main-slider" data-slide="prev">
+            <i class="icon-angle-left"></i>
+        </a>
+        <a class="next hidden-xs" href="#main-slider" data-slide="next">
+            <i class="icon-angle-right"></i>
+        </a>
+    </section><!--/#main-slider-->
+
+    <section id="services" class="emerald">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 col-sm-6">
+                    <div class="media">
+                        <div class="pull-left">
+                            <i class="icon-edit icon-md"></i>
+                        </div>
+                        <div class="media-body">
+                            <h3 class="media-heading">Data Collection</h3>
+                            <p>We collect numeric and news data for this project. The pirmary source of numeric data is the official website of NRB. The news data is scraped from ekantipur.</p>
+                        </div>
+                    </div>
+                </div><!--/.col-md-4-->
+                <div class="col-md-4 col-sm-6">
+                    <div class="media">
+                        <div class="pull-left">
+                            <i class="icon-search icon-md"></i>
+                        </div>
+                        <div class="media-body">
+                            <h3 class="media-heading">Sentiment Analysis</h3>
+                            <p>We analyze the news data using different NLP algorithms to extract the parameters which shows the economic trend in the market.</p>
+                        </div>
+                    </div>
+                </div><!--/.col-md-4-->
+                <div class="col-md-4 col-sm-6">
+                    <div class="media">
+                        <div class="pull-left">
+                            <i class="icon-magic icon-md"></i>
+                        </div>
+                        <div class="media-body">
+                            <h3 class="media-heading">Interest Rate Prediction</h3>
+                            <p>We predict the Interest Rates of Banks by feeding in collected numeric data and analyzed parameters to train a model and using the model.</p>
+                        </div>
+                    </div>
+                </div><!--/.col-md-4-->
+            </div>
+        </div>
+    </section><!--/#services-->
+{% endblock %}

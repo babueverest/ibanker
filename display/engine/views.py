@@ -1,0 +1,302 @@
+from django.shortcuts import render
+from django.template.loader import get_template
+from django.template import Context
+from django.http import HttpResponseServerError, HttpResponseNotFound
+from django.views.decorators.csrf import csrf_exempt
+from .models import forex
+from .models import idata
+from django.http import HttpResponse
+import json
+from scipy.stats import linregress
+from numpy import genfromtxt
+import numpy as np
+#from sklearn import svm
+#from smoothing import getAllOfSingleExp,linearReg
+# Create your views here.
+
+
+##Processing Modules
+##############################################################################################################################
+
+def linearReg(data):
+    y = [float(i) for i in data]                     #The output interest rate as y
+    x = [i for i in range(1,y.__len__()+1)]          #The input time t taken as series of natural number
+    slope, intercept, r, p, stderr = linregress(x, y)#scipy module for linear reg..fitting x and y 
+    predicted = [intercept + x * slope for x in range(1,y.__len__()+2) ]#The list of predicted values for each training input and one next time frame
+    return predicted,slope,intercept
+
+
+def singleExp(data,alpha):
+    y = [float(i) for i in data]                    # creating the list of interest rate as y
+    s = [y[0]]                                      # the forecast parameter s and setting s2 = y1 
+    for i in range(1,y.__len__()):                  # iterating from y2 to y(n) and finding s3 to s(n)
+        s.append( alpha * y[i] + (1-alpha) * s[-1]) #applying formula s(t+1) = alpha*y(t) + (1-alpha) * s(t)
+    return y,s                                      # returns y ans s of same length but the first y..
+                                                    #..and last s has to be removed before calculating error 
+
+def findMSE(y,s):
+    yarray = np.asarray(y[1:])                       #removing first y and changing into numpy array
+    sarray = np.asarray(s[:-1])                      #removing predicted s and changing into numpy array
+    sqerror = (yarray - sarray) * (yarray - sarray)
+    return np.mean(sqerror)                          #returns the mean square error 
+
+def getAllOfSingleExp(data): 
+    alpha = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]  # list of alpha
+    err = []                                         # list of Mean square error corrosponding to each alpha
+    for a in alpha:                                  #iterating over alpha
+        y,s = singleExp(data,a)
+        err.append(findMSE(y,s))
+    bestAlpha = alpha[err.index(min(err))]           #value of alpha having least MSE error
+    worstAlpha = alpha[err.index(max(err))]          #value of alpha having biggest MSE error
+    yb,sb = singleExp(data,bestAlpha)                #sb holds best smoothed perdiction
+    yw,sw = singleExp(data,worstAlpha)               #sw holds worst smoothed prediciton 
+
+    return sb ,bestAlpha, sw, worstAlpha,err,alpha   # returns sb and sw corrosponding to bestAlpha and worstAlpha and error with alpha variation
+
+
+def simpelMovingAvg(data,n):                         #function to find simple moving average [n is the window length or ]
+    y = [float(i) for i in data]                     #holds the input data in list
+    s = []                                           #holds the predicted values or smoothed values using moving avg 
+    n = n-1                                          #to match the python indexing
+    for i in range(0,y.__len__()-n):                 #iterate from beginning till the last possible index 
+        tmp = y[i:n+1+i]                             #gets the n item and moves as i increase [the window]
+        s.append(sum(tmp)/(n+1))                     #summing the number in list and getting the average
+    return s                                         #the result is in s but first n-1 values will not be available if plotting
+
+
+#################################################################################################################################
+from django.core.mail import get_connection, EmailMultiAlternatives
+from django.template import Context
+
+def send_email(request):
+    from_email=request.GET['email']
+    name=request.GET['firstname']+request.GET['lastname']
+    message=request.GET['message']
+    connection = get_connection()
+    connection.send_messages([message])
+    connection.close()
+    return render(request,'contact-us.html',{'contact':"active",'msg':"Your email has been sent."})  
+
+def server_error(request, template_name='error.html'):
+    t = get_template(template_name)
+    ctx = Context({})
+    return HttpResponseServerError(t.render(ctx))
+
+def contact(request):
+    return render(request, 'contact-us.html',{'contact':"active"})
+
+@csrf_exempt
+def index(request):
+    return render(request, 'index.html',{'home':"active"})
+
+@csrf_exempt
+def aboutus(request):
+    return render(request, 'aboutus.html',{'aboutus':"active"})
+
+@csrf_exempt
+def home(request):
+    if request.method=='GET':
+        idata_obj=idata.objects.all()
+        Date_1=idata_obj[0].Date.split('-')
+        start_date=Date_1[0]+','+Date_1[1]+','+str('1')
+        data=[]
+        for i in idata_obj:
+            data.append(i.IR)
+        title='Average Interest Rate'
+        yAxis_title='Interest Rate'
+        series_name='Interest Rate'
+        return render(request,'home.html',{'start_date':start_date,'data':str(data),'title':title,'yAxis_title':yAxis_title,'series_name':series_name,'predict':"active"})
+    elif request.method=='POST':
+        data_type=request.POST.get('data_type')
+        print(request)
+        if data_type=='forex':
+            idata_obj=idata.objects.all()
+            Date_1=idata_obj[0].Date.split('-')
+            start_date=Date_1[0]+','+Date_1[1]+','+str('1')
+            data=[]
+            for i in idata_obj:
+                data.append(i.FOREX)
+            title='USD to NPR'
+            yAxis_title='Exchange Rate'
+            response_data={}
+            response_data['title']=title
+            response_data['yAxis_title']=yAxis_title
+            response_data['start_date']=start_date
+            response_data['data']=data
+            response_data['series_name']='USD to NPR'
+            print(json.dumps(response_data))
+            return HttpResponse(json.dumps(response_data), content_type="application/json")
+        elif data_type=='petrol_price':
+            idata_obj=idata.objects.all()
+            Date_1=idata_obj[0].Date.split('-')
+            start_date=Date_1[0]+','+Date_1[1]+','+str('1')
+            data=[]
+            for i in idata_obj:
+                data.append(i.Petrol)
+            title='Price of Petrol'
+            yAxis_title='Price in NPR per liter'
+            response_data={}
+            response_data['title']=title
+            response_data['yAxis_title']=yAxis_title
+            response_data['start_date']=start_date
+            response_data['data']=data
+            response_data['series_name']='Petrol Price'
+            print(json.dumps(response_data))
+            return HttpResponse(json.dumps(response_data), content_type="application/json")
+        elif data_type=='gold_price':
+            idata_obj=idata.objects.all()
+            Date_1=idata_obj[0].Date.split('-')
+            start_date=Date_1[0]+','+Date_1[1]+','+str('1')
+            data=[]
+            for i in idata_obj:
+                data.append(i.GoldPrice)
+            title='Price of Gold'
+            yAxis_title='Price in NPR per 100gm'
+            response_data={}
+            response_data['title']=title
+            response_data['yAxis_title']=yAxis_title
+            response_data['start_date']=start_date
+            response_data['data']=data
+            response_data['series_name']='Gold Price'
+            print(json.dumps(response_data))
+            return HttpResponse(json.dumps(response_data), content_type="application/json")
+        elif data_type=='interest_rate':
+            idata_obj=idata.objects.all()
+            Date_1=idata_obj[0].Date.split('-')
+            start_date=Date_1[0]+','+Date_1[1]+','+str('1')
+            data=[]
+            for i in idata_obj:
+                data.append(i.IR)
+            title='Average Interest Rate'
+            yAxis_title='Interest Rate'
+            response_data={}
+            response_data['title']=title
+            response_data['yAxis_title']=yAxis_title
+            response_data['start_date']=start_date
+            response_data['data']=data
+            response_data['series_name']='Interest Rate'
+            print(json.dumps(response_data))
+            return HttpResponse(json.dumps(response_data), content_type="application/json")
+        else:
+            return HttpResponse("function not found")
+
+def normalize(ir,forex,goldprice,petrol):
+
+    ir_ = []
+    forex_ = []
+    goldprice_ = []
+    petrol_ = []
+
+    maxIR = max(ir)
+    maxF = max(forex)
+    maxG = max(goldprice)
+    maxP= max(petrol)
+
+    for i in range(0,len(ir)):
+        ir_.append(ir[i]/maxIR)
+        forex_.append(forex[i]/maxF)
+        goldprice_.append(goldprice[i]/maxG)
+        petrol_.append(petrol[i]/maxP)
+
+    return [ir_,forex_,goldprice_,petrol_]
+
+
+@csrf_exempt
+def processing(request):
+    idata_obj = idata.objects.all()
+    date = []
+    ir = []
+    forex = []
+    goldprice = []
+    petrol = []
+    Date_1=idata_obj[0].Date.split('-')
+    start_date=Date_1[0]+','+Date_1[1]+','+str('1')
+    for item in idata_obj:
+        date.append(item.Date)
+        ir.append(item.IR)
+        forex.append(item.FOREX)
+        goldprice.append(item.GoldPrice)
+        petrol.append(item.Petrol)
+
+    [nIr,nFor,nGop,nPet]=normalize(ir,forex,goldprice,petrol)
+
+    data_type=request.POST.get('data_type')
+    print(data_type)
+    if data_type=='exponential_smoothing':
+        print (data_type)
+    #linear Reg P is list of prediction, s i slope and i is intercept
+        sb ,bestAlpha, sw, worstAlpha,err,alpha = getAllOfSingleExp(ir)
+        sb.insert(0,'')
+        expSmoothing =[
+        {'type':'line','pointInterval': 30 * 24 * 3600 * 1000,'pointStart':1012521600000,'name' : 'Interest Rate',
+        'data' : ir},
+        {'type':'line','pointInterval': 30 * 24 * 3600 * 1000,'pointStart':1012521600000,'name' : 'Smoothed Values',
+        'data'  : sb}
+        ]
+        response_data={}
+        response_data['line_title']='Interest Rate Prediction using Exponential Smoothing'
+        response_data['line_yAxis_title']='Interest Rate'
+        response_data['line_series']=expSmoothing
+        print(json.dumps(response_data))
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    elif request.POST.get('data_type')=='Linear Regression':
+        #single exponential smoothing
+        p,s,i = linearReg(ir)    
+        linearSeries = [
+        {'type':'line','pointInterval': 30 * 24 * 3600 * 1000,'pointStart':1012521600000,'name' : 'Interest Rate',
+        'data' : ir},
+        {'type':'line','pointInterval': 30 * 24 * 3600 * 1000,'pointStart':1012521600000,'name' : 'Prediction',
+        'data' : p}
+        ]
+        response_data={}
+        response_data['line_title']='Interest Rate Prediction using Linear Regression'
+        response_data['line_yAxis_title']='Interest Rate'
+        response_data['line_series']=linearSeries
+
+        print(json.dumps(response_data))
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
+        
+    elif request.POST.get('data_type')=='moving_average':
+        # moving average where n is to be passed as parameter
+        smavg = simpelMovingAvg(ir,3)
+        smavg.insert(0,'')
+        smavg.insert(0,'')
+        smavg.insert(0,'')
+        movingSeries = [
+        {'type':'line','pointInterval': 30 * 24 * 3600 * 1000,'pointStart':1012521600000,'name' : 'Interest Rate',
+        'data' : ir},
+        {'type':'line','pointInterval': 30 * 24 * 3600 * 1000,'pointStart':1012521600000,'name' : 'Moving average n=3',
+        'data' : smavg}
+        ]
+        response_data={}
+        response_data['line_title']='Interest Rate smoothing using moving average'
+        response_data['line_yAxis_title']='Interest Rate'
+        response_data['line_series']=movingSeries
+        print(json.dumps(response_data))
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
+    elif request.POST.get('data_type')=='Correlation':
+        print('adf')
+        smavg = simpelMovingAvg(ir,3)
+        corr = [
+        {'type':'line','pointInterval': 30 * 24 * 3600 * 1000,'pointStart':1012521600000,'name' : 'Interest Rate',
+        'data' : nIr},
+        {'type':'line','pointInterval': 30 * 24 * 3600 * 1000,'pointStart':1012521600000,'name' : 'FOREX',
+        'data' : nFor},
+        {'type':'line','pointInterval': 30 * 24 * 3600 * 1000,'pointStart':1012521600000,'name' : 'Gold Price',
+        'data' : nGop},
+        {'type':'line','pointInterval': 30 * 24 * 3600 * 1000,'pointStart':1012521600000,'name' : 'Pertrol Price',
+        'data' : nPet}
+        
+        ]
+        response_data={}
+        response_data['line_title']='All features'
+        response_data['line_yAxis_title']='Values'
+        response_data['line_series']=corr
+        print(json.dumps(response_data))
+        return HttpResponse(json.dumps(response_data), content_type="application/json")
+
+    
+        
+
+   

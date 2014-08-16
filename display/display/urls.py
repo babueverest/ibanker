@@ -1,0 +1,24 @@
+from django.conf.urls import patterns, include, url
+
+from django.contrib import admin
+admin.autodiscover()
+
+
+handler500 = 'engine.views.server_error'
+handler404 = 'engine.views.server_error'
+handler403 = 'engine.views.server_error'
+handler400 = 'engine.views.server_error'
+
+urlpatterns = patterns('',
+    # Examples:
+    # url(r'^$', 'display.views.home', name='home'),
+    # url(r'^blog/', include('blog.urls')),
+    url(r'^$','engine.views.index',name='index'),
+    url(r'^predict/','engine.views.home',name='home'),
+    url(r'^aboutus/$','engine.views.aboutus',name='aboutus'),
+    url(r'^contact/','engine.views.contact',name='contact'),
+    url(r'^sendemail/','engine.views.send_email',name='send_email'),
+    url(r'^hello/','engine.views.processing',name='processing'),
+    url(r'^admin/', include(admin.site.urls)),
+
+)

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block body %}
+
+    <section id="title" class="emerald">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h1>Contact Us</h1>
+                    <p>Please use the form below to email us.</p>
+		    <p>{{msg}}</p>
+                </div>
+                <div class="col-sm-6">
+                    <ul class="breadcrumb pull-right">
+                        <li><a href="/">Home</a></li>
+                        <li class="active">Contact Us</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section><!--/#title-->    
+
+    <section id="contact-page" class="container">
+        <div class="row">
+            <div class="col-sm-8">
+                <h4>Contact Form</h4>
+                <div class="status alert alert-success" style="display: none"></div>
+                <form id="main-contact-form" class="contact-form" name="contact-form" method="get" action="/sendemail" role="form">
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <div class="form-group">
+                                <input type="text" class="form-control" required="required" id="firstname" name="firstname" placeholder="First Name">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control" required="required" id="lastname" name="lastname" placeholder="Last Name">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control" required="required" id="email" name="email" placeholder="Email address">
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary btn-lg">Send Message</button>
+                            </div>
+                        </div>
+                        <div class="col-sm-7">
+                            <textarea name="message" id="message" required="required" id="message" name="message" class="form-control" rows="8" placeholder="Message"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div><!--/.col-sm-8-->
+            <div class="col-sm-4">
+                <h4>Our Location</h4>
+<iframe width="100%" height="215" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3533.1841097177858!2d85.32186541058667!3d27.68070401292269!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb19b606ce89f9%3A0x7423e72f8e139e05!2sPulchowk+Engineering+Campus!5e0!3m2!1sen!2s!4v1407165990570" width="600" height="450" frameborder="0" style="border:0"></iframe>
+            </div><!--/.col-sm-4-->
+        </div>
+    </section><!--/#contact-page-->
+{% endblock %}

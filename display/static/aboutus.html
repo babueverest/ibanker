@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block body %}
+<section id="title" class="emerald">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h1>About Us</h1>
+                    <p></p>
+                </div>
+                <div class="col-sm-6">
+                    <ul class="breadcrumb pull-right">
+                        <li><a href="/">Home</a></li>
+                        <li class="active">About Us</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section><!--/#title-->
+    <section id="about-us" class="container">
+        <div class="row">
+            <div class="col-sm-6">
+                <h2>What are we doing?</h2>
+                <p>In this project news data from the Internet is used for the prediction of interest rates. A Knowlede Based News Miner is developed, which represents the knowledge of interest rate experts with cognitive maps, to search  and retrieve  news information on the Internet  according  to propr knowledge, and apply the information, which is retrieved from news data, to a neural network model for  the prediction of interest rates.</p>
+            </div><!--/.col-sm-6-->
+            <div class="col-sm-6">
+                <h2>Tools Used</h2>
+                <div>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100" style="width: 90%;">
+                            <span>Python</span>
+                        </div>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width: 70%;">
+                            <span>MySQL</span>
+                        </div>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
+                            <span>HTML/CSS</span>
+                        </div>
+                    </div>
+                </div>
+            </div><!--/.col-sm-6-->
+        </div><!--/.row-->
+
+        <div class="gap"></div>
+        <h1 class="center">Meet the Team</h1>
+        <p class="lead center"></p>
+        <div class="gap"></div>
+
+        <div id="meet-the-team" class="row">
+            <div class="col-md-3 col-xs-6">
+                <div class="center">
+                    <p><img class="img-responsive img-thumbnail img-circle" src="/static/images/bidhya.jpg" alt="" ></p>
+                    <h5>Bidhya Nandan Sharma<small class="designation muted">Machine Learning Expert</small></h5>
+                    <p>He worked in predicting the interest rates from given data using different machine learning techniques. He used sci-kit for this purpose.</p>
+                    <a class="btn btn-social btn-facebook" href="https://www.facebook.com/bidsh"><i class="icon-facebook"></i></a> <a class="btn btn-social btn-google-plus" href="#"><i class="icon-google-plus"></i></a> <a class="btn btn-social btn-twitter" href="#"><i class="icon-twitter"></i></a> <a class="btn btn-social btn-linkedin" href="#"><i class="icon-linkedin"></i></a>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-xs-6">
+                <div class="center">
+                    <p><img class="img-responsive img-thumbnail img-circle" src="/static/images/everest.jpg" alt="" ></p>
+                    <h5>Everest K.C.<small class="designation muted">Web Programmer</small></h5>
+                    <p>He developed the webapp to scrap the news and extract keywords from them. He also worked on graphical visualizations of the data.</p>
+                    <a class="btn btn-social btn-facebook" href="https://www.facebook.com/cyborgek"><i class="icon-facebook"></i></a> <a class="btn btn-social btn-google-plus" href="#"><i class="icon-google-plus"></i></a> <a class="btn btn-social btn-twitter" href="#"><i class="icon-twitter"></i></a> <a class="btn btn-social btn-linkedin" href="#"><i class="icon-linkedin"></i></a>
+                </div>
+            </div>        
+            <div class="col-md-3 col-xs-6">
+                <div class="center">
+                    <p><img class="img-responsive img-thumbnail img-circle" src="/static/images/sushant.jpg" alt="" ></p>
+                    <h5>Sushant Kafle<small class="designation muted">NLP Expert</small></h5>
+                    <p>He wrote a program to analyze sentiment of the keywords in a sentence. He used Python NLTK for this purpose.<br/><br/></p>
+                    <a class="btn btn-social btn-facebook" href="https://www.facebook.com/get.sushant"><i class="icon-facebook"></i></a> <a class="btn btn-social btn-google-plus" href="#"><i class="icon-google-plus"></i></a> <a class="btn btn-social btn-twitter" href="#"><i class="icon-twitter"></i></a> <a class="btn btn-social btn-linkedin" href="#"><i class="icon-linkedin"></i></a>
+                </div>
+            </div>        
+            <div class="col-md-3 col-xs-6">
+                <div class="center">
+                    <p><img class="img-responsive img-thumbnail img-circle" src="/static/images/swapnil.jpg" alt="" ></p>
+                    <h5>Swapnil Sneham<small class="designation muted">Database Expert</small></h5>
+                    <p>She designed the database and cognitive map required for the project. She also wrote sql scripts required for the project.<br/><br/></p>
+                    <a class="btn btn-social btn-facebook" href="https://www.facebook.com/Swapnil.sneham"><i class="icon-facebook"></i></a> <a class="btn btn-social btn-google-plus" href="#"><i class="icon-google-plus"></i></a> <a class="btn btn-social btn-twitter" href="#"><i class="icon-twitter"></i></a> <a class="btn btn-social btn-linkedin" href="#"><i class="icon-linkedin"></i></a>
+                </div>
+            </div>
+        </div><!--/#meet-the-team-->
+    </section><!--/#about-us-->
+{% endblock %}

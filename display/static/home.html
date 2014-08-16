@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% block body %}
+<div id="header">
+
+<script src="/static/js/highcharts.js"></script>
+<script src="/static/js/modules/exporting.js"></script>
+<script src="/static/js/angular.min.js"></script>
+<br>
+<br>
+<br>
+<div class="row">
+<div class="col-lg-8" id="container" style="min-width: 310px; height: 400px; margin: 0 auto">
+<script id="highcharts" type="text/javascript">
+	var yAxis_title="{{ yAxis_title }}";
+	var title="{{ title }}";
+        var start_date=Date.UTC({{ start_date }});
+	{% autoescape off %}	
+	var data_={{ data }}
+	{% endautoescape %}
+    var series_name='{{ series_name }}';
+        function chart() {
+        $("#container").highcharts({
+            chart: {
+                zoomType: 'x'
+            },
+            title: {
+                text: title
+            },
+            subtitle: {
+                text: document.ontouchstart === undefined ?
+                    'Click and drag in the plot area to zoom in' :
+                    'Pinch the chart to zoom in'
+            },
+            xAxis: {
+                type: 'datetime',
+                minRange: 14 * 24 * 3600000 // fourteen days
+            },
+            yAxis: {
+                title: {
+                    text: yAxis_title
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            plotOptions: {
+                area: {
+                    fillColor: {
+                        linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1},
+                        stops: [
+                            [0, Highcharts.getOptions().colors[0]],
+                            [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                        ]
+                    },
+                    marker: {
+                        radius: 2
+                    },
+                    lineWidth: 1,
+                    states: {
+                        hover: {
+                            lineWidth: 1
+                        }
+                    },
+                    threshold: null
+                }
+            },
+    
+            series: [{
+                type: 'area',
+                name: series_name,
+                pointInterval: 30*24 * 3600 * 1000,
+                pointStart:start_date,
+                data:data_
+            }]
+        });
+    };
+    $(chart())
+
+    var line_yAxis_title=0;
+    var line_title=0;
+    var line_series=0;
+        function linechart() {
+        $("#container").highcharts({
+            chart: {
+                zoomType: 'x'
+            },
+            title: {
+                text: line_title
+            },
+            subtitle: {
+                text: document.ontouchstart === undefined ?
+                    'Click and drag in the plot area to zoom in' :
+                    'Pinch the chart to zoom in'
+            },
+            xAxis: {
+                type: 'datetime',
+                minRange: 14 * 24 * 3600000 // fourteen days
+            },
+            yAxis: {
+                title: {
+                    text: line_yAxis_title
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            plotOptions: {
+                area: {
+                    fillColor: {
+                        linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1},
+                        stops: [
+                            [0, Highcharts.getOptions().colors[0]],
+                            [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                        ]
+                    },
+                    marker: {
+                        radius: 2
+                    },
+                    lineWidth: 1,
+                    states: {
+                        hover: {
+                            lineWidth: 1
+                        }
+                    },
+                    threshold: null
+                }
+            },
+    
+            series:  line_series
+        });
+    };
+    
+	</script>
+</div>
+<form class="form-horizontal">
+<fieldset>
+
+<!-- Form Name -->
+<legend>View Data</legend>
+
+<!-- Select Basic -->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="data">Data Visualization:</label>
+  <div class="col-md-5">
+    <select id="data" name="data" class="form-control" ng-model="data">
+      <option value="interest_rate">Interest Rate</option>
+      <option value="forex">USD Exchange Rate</option>
+      <option value="petrol_price">Petrol Price</option>
+      <option value="gold_price">Gold Price</option>
+      <option vlaue="nepse">NEPSE</option>
+    </select>
+  </div>
+</div>
+<div ng-if="data =='interest_rate'" class="form-group" id="form2">
+  <label class="col-md-4 control-label" for="data">Data Analytics:</label>
+  <div class="col-md-5">
+    <select id="analysis" name="analysis" class="form-control">
+      <option value="">Choose an algorithm</option>
+      <option value="exponential_smoothing">Exponential Smoothing</option>
+      <option value="moving_average">Moving Average</option>
+      <option vlaue="linear_regression">Linear Regression</option>
+      <option vlaue="correlation">Correlation</option>
+
+    </select>
+  </div>
+</div>
+<div id="hawa"></div>
+</fieldset>
+</form>
+</div>
+<script type="text/javascript">
+$( "#data" )
+.change(function () {
+var str = "";
+$('#data').children( "select option:selected" ).each(function() {
+str = $( this ).val();
+});
+$.ajax({
+        type: "POST",
+        url: "/predict/",
+        data: {
+        	data_type:str
+        },
+        success: function(msg) {
+	    yAxis_title=msg.yAxis_title;
+	    title=msg.title;
+        data_=msg.data;
+        series_name=msg.series_name;
+	    $(chart())	;
+	    
+        }
+       
+    });
+});
+$( "#analysis" )
+.change(function () {
+var str = "";
+$('#analysis').children( "select option:selected" ).each(function() {
+str = $( this ).val();
+console.log(str);
+});
+$.ajax({
+        type: "POST",
+        url: "/hello/",
+        data: {
+        	data_type:str
+        },
+        success: function(msg) {
+	    line_yAxis_title=msg.line_yAxis_title;
+	    line_title=msg.line_title;
+        {% autoescape off %}
+	    line_series=msg.line_series;
+        {% endautoescape %}
+	    $(linechart());
+	    
+        }
+       
+    });
+});
+
+$('#form2').hide();
+$(document).ready(function () {
+  $('#form2').hide();
+)};
+</script>
+{% endblock %}
+
